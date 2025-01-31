@@ -161,5 +161,36 @@ namespace habilitations2024.dal
             }
         }
 
+        /// <summary>
+        /// Contrôle que l'objet admin a le droit de se connecter
+        /// </summary>
+        /// <param name="admin"></param>
+        /// <returns></returns>
+        public Boolean ControleAuthentification(Admin admin)
+        {
+            if (access.Manager != null)
+            {
+                string req = "select * from developpeur d join profil p on d.idprofil = p.idprofil where d.nom=@nom and d.prenom=@prenom and pwd=SHA2(@pwd, 256) and p.nom='admin';";
+                Dictionary<string,object> parameters = new Dictionary<string, object>();
+                parameters.Add("@nom", admin.Nom);
+                parameters.Add("@prenom", admin.Prenom);
+                parameters.Add("@pwd", admin.Pwd);
+                try
+                {
+                    List<Object[]> records = access.Manager.ReqSelect(req, parameters);
+                    if (records != null)
+                    {
+                        return (records.Count > 0);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Environment.Exit(0);
+                }
+            }
+            return false;
+        }
+
     }
 }
